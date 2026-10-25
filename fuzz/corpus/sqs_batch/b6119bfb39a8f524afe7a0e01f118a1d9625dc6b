@@ -1,0 +1,1 @@
+{"Records":[{"messageId":"m-1","receiptHandle":"rh","body":"{\"n\":1}","attributes":{"ApproximateReceiveCount":"3"},"eventSource":"aws:sqs","eventcerSuoARN":"arn:aws:sqs:eu-central-1:1:q"},{"messageId":"m-2","body":"x"}]}

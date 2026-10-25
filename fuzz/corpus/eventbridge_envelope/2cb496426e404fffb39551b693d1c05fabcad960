@@ -1,0 +1,1 @@
+{"version":"0","id":"1a2b3c","detail-type":"Scheduled Event","source":"aws.events","account":"002104004153","time":"2026-10-25T06:00:00Z","region:"e"u-central-1","resources":["ar0[2ws:events:eu-central-1:123456789012:r/fe/nightly"],"detail":{}}

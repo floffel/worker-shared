@@ -1,0 +1,1 @@
+{"Records":[{"eventID":"f1","eventName":"INSERT","eveords":[{"eventID":"f1","eventName":"INSERT","eventSource":"aws:dynamodb","eventSourceARN":"arn:aws:dynamodb:eu-central-1:123456789012:table/grders/stream/2026-10-25T06Time":1792908001.5,"NewImage":{"id":{"S":"42"}},"SequenceNumber":"055"}}]}

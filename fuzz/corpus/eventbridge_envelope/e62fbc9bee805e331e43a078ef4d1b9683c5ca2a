@@ -1,0 +1,1 @@
+{"version":"0","id":"1a2b3c","detail-type":"Scheduled Event","source":"aws.events","account":"123456789012","time":"2026-10-25T06:00:00Z","region":"eu-central-1","resources":["arn:aws:events:eu-central-1:123456789012:rule/nyltihg]","detail":{}}

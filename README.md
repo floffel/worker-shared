@@ -1,5 +1,32 @@
 # worker-shared
 
+## Deprecated
+
+**This crate is deprecated and 0.1.0 will not get fixes, features or security
+patches.** It re-implemented infrastructure that AWS already publishes and
+maintains, and it should not be adopted for new code.
+
+Use these instead:
+
+| This crate did | Use |
+|---|---|
+| EventBridge / SQS / DynamoDB-stream envelope parsing | [`aws_lambda_events`](https://crates.io/crates/aws_lambda_events) |
+| Handler loop, graceful shutdown, invocation deadline | [`lambda_runtime`](https://crates.io/crates/lambda_runtime) |
+| Secret cache with TTL and refresh | [`aws_secretsmanager_caching`](https://crates.io/crates/aws_secretsmanager_caching) |
+| `PutEvents` batch chunking (10 entries / 256 KiB) | ~40 lines over [`aws_sdk_eventbridge`](https://crates.io/crates/aws-sdk-eventbridge) |
+| SQS `batchItemFailures` response | a small helper over `aws_lambda_events::sqs` |
+
+The extraction also never carried the parts that are product-side by nature
+(the DynamoDB idempotency store keyed on an application table schema, the
+handler-specific error taxonomy). Those belong in the application, next to
+their consumers.
+
+Status: no further releases planned. The 0.1.0 source stays here for reference;
+consumers should migrate, and yanking the published version is a separate
+decision by the repository owner.
+
+---
+
 Lambda plumbing for Rust AWS workers: a single-flight secret cache, EventBridge
 `PutEvents` batching with partial-failure reporting, SQS partial-batch
 responses, envelope parsing for the event sources, and handler glue that stops

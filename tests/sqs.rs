@@ -58,10 +58,10 @@ fn snake_case_is_accepted_too() {
 fn minimal_message_defaults_the_optional_fields() {
     let event = SqsBatchEvent::parse(r#"{"Records":[{"messageId":"only"}]}"#).expect("parse");
     let message = &event.records[0];
-    assert!(message.body.is_empty());
+    assert_eq!(message.body.len(), 0);
     assert!(message.receipt_handle.is_none());
-    assert!(message.attributes.is_empty());
-    assert!(message.message_attributes.is_empty());
+    assert_eq!(message.attributes.len(), 0);
+    assert_eq!(message.message_attributes.len(), 0);
     assert!(message.event_source.is_none());
     assert!(message.event_source_arn.is_none());
     assert_eq!(message.receive_count(), 1, "never delivered before");
@@ -85,14 +85,14 @@ fn non_object_and_malformed_payloads_are_rejected() {
     }
     assert!(SqsBatchEvent::parse("{").is_err());
     // A missing `Records` key is an empty batch, not an error.
-    assert!(SqsBatchEvent::parse("{}").expect("empty").is_empty());
+    assert_eq!(SqsBatchEvent::parse("{}").expect("empty").len(), 0);
 }
 
 #[test]
 fn empty_batch_is_legal_and_produces_an_empty_report() {
     let event = SqsBatchEvent::default();
     assert_eq!(event.len(), 0);
-    assert!(event.is_empty());
+    assert_eq!(event.len(), 0);
     assert_eq!(event.iter().count(), 0);
     assert!(event.message("x").is_none());
 
@@ -109,7 +109,7 @@ fn failures_keep_input_order_and_ignore_duplicates() {
     assert!(!failures.push(""), "empty id would poison the report");
     assert_eq!(failures.len(), 2);
     assert_eq!(failures.as_slice(), &["c".to_string(), "a".to_string()]);
-    assert!(!failures.is_empty());
+    assert_ne!(failures.len(), 0);
     assert_eq!(
         failures.to_json_string().expect("json"),
         r#"{"batchItemFailures":[{"itemIdentifier":"c"},{"itemIdentifier":"a"}]}"#
@@ -167,7 +167,7 @@ async fn run_batch_reports_failed_messages_in_batch_order() {
 async fn run_batch_handles_the_zero_message_case() {
     let event = SqsBatchEvent::default();
     let failures = run_batch(&event, |_, _| std::future::ready(false)).await;
-    assert!(failures.is_empty());
+    assert_eq!(failures.len(), 0);
 }
 
 #[tokio::test]
@@ -222,7 +222,7 @@ fn sqs_message_new_builds_a_minimal_record() {
     let message = SqsMessage::new("id", "body");
     assert_eq!(message.message_id, "id");
     assert_eq!(message.body, "body");
-    assert!(message.attributes.is_empty());
+    assert_eq!(message.attributes.len(), 0);
     assert_eq!(message, message.clone());
 }
 

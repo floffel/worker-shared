@@ -205,7 +205,7 @@ async fn invalidate_all_clears_everything() {
     cache.get("a").await.expect("a");
     cache.get("b").await.expect("b");
     assert_eq!(cache.invalidate_all(), 2);
-    assert!(cache.is_empty());
+    assert_eq!(cache.len(), 0);
     assert_eq!(cache.invalidate_all(), 0);
 }
 
@@ -335,7 +335,7 @@ async fn secret_string_rejects_empty_and_compares_in_constant_time() {
     assert!(!a.ct_eq(&SecretString::new("correct").expect("short")));
     assert_eq!(a.expose_secret(), "correct horse");
     assert_eq!(a.len(), 13);
-    assert!(!a.is_empty());
+    assert_ne!(a.len(), 0);
     assert_eq!(format!("{a:?}"), "SecretString(\"[redacted]\")");
     // NUL and control characters are values, not errors.
     let nul = SecretString::new("a\0b").expect("nul");

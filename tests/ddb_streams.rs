@@ -226,6 +226,6 @@ fn iterators_expose_records_and_ids_in_order() {
     let event = DdbStreamEvent::from_value(raw).expect("parse");
     assert_eq!(event.iter().count(), 2);
     assert_eq!(event.event_ids().collect::<Vec<_>>(), vec!["a", "b"]);
-    assert!(!event.is_empty());
-    assert!(DdbStreamEvent::default().is_empty());
+    assert_ne!(event.len(), 0);
+    assert_eq!(DdbStreamEvent::default().len(), 0);
 }

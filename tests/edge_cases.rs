@@ -40,7 +40,7 @@ async fn edge_whitespace_only_secret_is_a_value() {
     // is not rejected — only the empty string is.
     let secret = SecretString::new(" ").expect("whitespace is a value");
     assert_eq!(secret.len(), 1);
-    assert!(!secret.is_empty());
+    assert_ne!(secret.len(), 0);
 }
 
 #[tokio::test]
@@ -142,7 +142,7 @@ fn edge_zero_sqs_messages_yield_an_empty_report() {
     use worker_shared::sqs::{BatchItemFailures, SqsBatchEvent};
 
     let event = SqsBatchEvent::parse(r#"{"Records":[]}"#).expect("zero messages");
-    assert!(event.is_empty());
+    assert_eq!(event.len(), 0);
     assert_eq!(
         BatchItemFailures::new().to_json_string().expect("json"),
         r#"{"batchItemFailures":[]}"#
@@ -259,5 +259,5 @@ async fn edge_fetcher_error_is_returned_unchanged() {
     let error = cache.get("k").await.expect_err("backend error");
     assert_eq!(error.code(), "secret");
     assert!(error.is_retryable());
-    assert!(cache.is_empty());
+    assert_eq!(cache.len(), 0);
 }

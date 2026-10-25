@@ -110,7 +110,7 @@ fn every_error_variant_answers_the_three_questions() {
         assert!(!error.to_string().is_empty(), "{code} has no message");
         // Errors are cheap to clone and compare, which callers rely on.
         assert_eq!(error.clone(), error);
-        assert!(!format!("{error:?}").is_empty());
+        assert_ne!(format!("{error:?}").len(), 0);
     }
 }
 
@@ -224,7 +224,7 @@ fn every_config_error_variant_renders_and_names_its_key() {
         assert_eq!(error.to_string(), expected);
         assert_eq!(error.key(), expected.split('`').nth(1).expect("key"));
         assert_eq!(error.clone(), error);
-        assert!(!format!("{error:?}").is_empty());
+        assert_ne!(format!("{error:?}").len(), 0);
     }
 }
 
@@ -338,7 +338,7 @@ async fn eventbridge_batch_surface_is_complete() {
         .with_event_bus_name("bus");
 
     // Batch: default, empty, into_entries, TryFrom failure.
-    assert!(Batch::default().is_empty());
+    assert_eq!(Batch::default().len(), 0);
     assert_eq!(Batch::new().len(), 0);
     assert_eq!(plan(Vec::new()).expect("empty plan").len(), 0);
     let batch = Batch::try_from(vec![entry.clone()]).expect("batch");
@@ -376,7 +376,7 @@ async fn eventbridge_batch_surface_is_complete() {
     assert_eq!(report.failed_indexes().collect::<Vec<_>>(), vec![0, 2]);
     assert_eq!(report.retryable_indexes().collect::<Vec<_>>(), vec![0]);
     assert_eq!(report.clone(), report);
-    assert!(!format!("{report:?}").is_empty());
+    assert_ne!(format!("{report:?}").len(), 0);
     assert!(!report.failures[1].is_retryable());
 
     // PutEventsResponse constructors.
@@ -412,7 +412,7 @@ fn sqs_surface_is_complete() {
 
     let message = SqsMessage::new("id", "body");
     assert_eq!(message.clone(), message);
-    assert!(!format!("{message:?}").is_empty());
+    assert_ne!(format!("{message:?}").len(), 0);
 
     let event = SqsBatchEvent::parse(r#"{"Records":[{"messageId":"a"}]}"#).expect("parse");
     assert_eq!(event.clone(), event);
@@ -428,7 +428,7 @@ fn sqs_surface_is_complete() {
         "a"
     );
     assert_eq!(failures.to_json(), partial_batch_response(&failures));
-    assert!(!format!("{failures:?}").is_empty());
+    assert_ne!(format!("{failures:?}").len(), 0);
 }
 
 #[cfg(feature = "ddb")]
@@ -440,11 +440,11 @@ fn ddb_surface_is_complete() {
     assert_eq!(StreamRecordKind::Modify.as_str(), "MODIFY");
     assert_eq!(StreamRecordKind::Remove.to_string(), "REMOVE");
     assert!(StreamRecordKind::Remove.is_known());
-    assert!(!format!("{:?}", StreamRecordKind::Insert).is_empty());
+    assert_ne!(format!("{:?}", StreamRecordKind::Insert).len(), 0);
 
     let record = StreamRecord::new("id", StreamRecordKind::Insert);
     assert_eq!(record.clone(), record);
-    assert!(!format!("{record:?}").is_empty());
+    assert_ne!(format!("{record:?}").len(), 0);
 
     let event = DdbStreamEvent::from_value(serde_json::json!({
         "Records": [{"eventID": "a", "eventName": "INSERT"}]
@@ -465,18 +465,18 @@ async fn secret_surface_is_complete() {
         Duration::from_secs(1)
     );
     assert!(config.lifetime(Duration::from_secs(1)) <= config.ttl);
-    assert!(!format!("{config:?}").is_empty());
+    assert_ne!(format!("{config:?}").len(), 0);
     assert_eq!(CacheStats::default().hits, 0);
-    assert!(!format!("{:?}", CacheStats::default()).is_empty());
+    assert_ne!(format!("{:?}", CacheStats::default()).len(), 0);
 
     let fetcher = common::CountingFetcher::new();
     let cache = SecretCache::new(std::sync::Arc::clone(&fetcher), config).expect("cache");
     cache.get("k").await.expect("value");
     assert_eq!(cache.evict_expired(), 0);
     assert_eq!(cache.invalidate_all(), 1);
-    assert!(cache.is_empty());
+    assert_eq!(cache.len(), 0);
     assert_eq!(cache.config().ttl, config.ttl);
-    assert!(!format!("{cache:?}").is_empty());
+    assert_ne!(format!("{cache:?}").len(), 0);
 
     let secret = SecretString::new("v").expect("secret");
     assert_eq!(secret.clone().len(), 1);
@@ -488,7 +488,10 @@ fn handler_debug_impls_exist() {
     use worker_shared::handler::{Cancellation, Deadline, Lazy};
 
     assert!(format!("{:?}", Lazy::<u8>::new()).starts_with("Lazy"));
-    assert!(!format!("{:?}", Deadline::after(Duration::from_secs(1))).is_empty());
-    assert!(!format!("{:?}", Cancellation::new()).is_empty());
-    assert!(!format!("{:?}", Cancellation::new().token()).is_empty());
+    assert_ne!(
+        format!("{:?}", Deadline::after(Duration::from_secs(1))).len(),
+        0
+    );
+    assert_ne!(format!("{:?}", Cancellation::new()).len(), 0);
+    assert_ne!(format!("{:?}", Cancellation::new().token()).len(), 0);
 }

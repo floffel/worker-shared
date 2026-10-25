@@ -78,7 +78,7 @@ fn partial_envelope_defaults_instead_of_failing() {
     assert_eq!(envelope.source, "");
     assert_eq!(envelope.detail_type, "");
     assert_eq!(envelope.detail, serde_json::Value::Null);
-    assert!(envelope.resources.is_empty());
+    assert_eq!(envelope.resources.len(), 0);
 }
 
 #[test]
@@ -137,7 +137,7 @@ fn entry_validates_its_own_fields() {
     assert_eq!(entry.detail(), "{}");
     assert_eq!(entry.source(), "app");
     assert_eq!(entry.detail_type(), "Type");
-    assert!(entry.resources().is_empty());
+    assert_eq!(entry.resources().len(), 0);
     assert!(entry.time().is_none());
     assert!(entry.event_bus_name().is_none());
 }
@@ -233,7 +233,7 @@ fn a_single_oversized_entry_is_named_with_its_position() {
 fn batch_try_from_and_accessors() {
     let batch = Batch::try_from(vec![entry(0), entry(1)]).expect("batch");
     assert_eq!(batch.len(), 2);
-    assert!(!batch.is_empty());
+    assert_ne!(batch.len(), 0);
     assert_eq!(batch.entries().len(), 2);
     assert_eq!(
         batch.total_bytes(),
@@ -274,7 +274,7 @@ fn plan_splits_by_size_too() {
     assert!(batches
         .iter()
         .all(|batch| batch.total_bytes() <= MAX_BATCH_BYTES));
-    assert!(plan(Vec::<Entry>::new()).expect("empty").is_empty());
+    assert_eq!(plan(Vec::<Entry>::new()).expect("empty").len(), 0);
     assert!(plan(vec![entry(MAX_BATCH_BYTES + 5)]).is_err());
 }
 

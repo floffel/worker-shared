@@ -1,0 +1,69 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --all-features -- -D warnings
+      - run: cargo clippy --all-targets --no-default-features -- -D warnings
+      - run: cargo test --all-features
+      - run: cargo test --no-default-features
+      - run: cargo doc --no-deps --all-features
+        env:
+          RUSTDOCFLAGS: -D warnings
+
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.89.0
+      # Default features plus `ddb`: the `secrets-aws` adapter pulls in the AWS
+      # SDK, whose own MSRV is allowed to move ahead of this crate's.
+      - run: cargo build --features ddb
+      - run: cargo test --features ddb
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      # Measured without `secrets-aws`: that adapter is four lines of SDK
+      # plumbing whose only untestable part is the network call. Everything
+      # else — cache, single-flight, batching, dispatch, parsers, config,
+      # handler glue — runs in the test binaries, including the error paths.
+      - run: cargo llvm-cov --features ddb --summary-only --fail-under-lines 95
+
+  fuzz-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz --locked
+      # The default musl target cannot be combined with ASAN (`statically
+      # linked libc`), so build for the host triple instead.
+      - name: Build fuzz targets
+        run: cargo +nightly fuzz build --target x86_64-unknown-linux-gnu
+      # A short campaign per target, not just a build: the targets parse
+      # untrusted AWS payloads, and a compiler check proves nothing about them.
+      - name: Run eventbridge_envelope
+        run: cargo +nightly fuzz run eventbridge_envelope --target x86_64-unknown-linux-gnu -- -runs=2000 -max_len=4096 -max_total_time=30
+      - name: Run sqs_batch
+        run: cargo +nightly fuzz run sqs_batch --target x86_64-unknown-linux-gnu -- -runs=2000 -max_len=4096 -max_total_time=30
+      - name: Run ddb_record
+        run: cargo +nightly fuzz run ddb_record --target x86_64-unknown-linux-gnu -- -runs=2000 -max_len=4096 -max_total_time=30
+
+  deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2

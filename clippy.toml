@@ -1,0 +1,19 @@
+# Product names and AWS API identifiers that read as prose, not as code.
+doc-valid-idents = [
+    "EventBridge",
+    "DynamoDB",
+    "SecretsManager",
+    "CloudWatch",
+    "PutEvents",
+    "GetSecretValue",
+    "BatchItemFailures",
+    "ItemIdentifier",
+    "ApproximateReceiveCount",
+    "ApproximateCreationDateTime",
+    "AttributeValue",
+    "NewImage",
+    "OldImage",
+    "SequenceNumber",
+    "SIGTERM",
+    "..",
+]

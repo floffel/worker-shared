@@ -1,0 +1,54 @@
+[package]
+name = "worker-shared"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.89"
+license = "Apache-2.0 OR MIT"
+description = "AWS Lambda plumbing for Rust: secrets cache, EventBridge/SQS dispatch, handler glue"
+repository = "https://github.com/floffel/worker-shared"
+documentation = "https://docs.rs/worker-shared"
+keywords = ["aws", "lambda", "eventbridge", "sqs", "secrets"]
+categories = ["api-bindings", "web-programming"]
+readme = "README.md"
+exclude = [".github/**", "deny.toml", "fuzz/**", "lcov.info"]
+
+[package.metadata.docs.rs]
+all-features = true
+
+[features]
+default = ["eventbridge", "sqs"]
+# EventBridge envelope parsing, `PutEvents` batch building (10 entries /
+# 256 KiB) and partial-failure dispatch. Pure logic, no AWS SDK.
+eventbridge = []
+# SQS batch parsing and `batchItemFailures` partial-batch responses.
+sqs = []
+# DynamoDB Streams envelope parsing.
+ddb = []
+# Adapter from the cache to AWS Secrets Manager. Pulls in the SDK; off by
+# default so the core crate stays dependency-light.
+secrets-aws = ["dep:aws-sdk-secretsmanager"]
+# Structured logs. The crate is silent unless this is enabled.
+tracing = ["dep:tracing"]
+
+[dependencies]
+async-trait = "0.1"
+aws-sdk-secretsmanager = { version = "1.51", default-features = false, optional = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+subtle = "2.6"
+thiserror = "2"
+time = { version = "0.3", features = ["parsing", "formatting", "macros", "serde", "serde-well-known"] }
+tokio = { version = "1", default-features = false, features = ["macros", "sync", "time"] }
+tracing = { version = "0.1", optional = true }
+
+[dev-dependencies]
+proptest = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "deny"
+
+[lints.clippy]
+all = "warn"
+pedantic = "warn"

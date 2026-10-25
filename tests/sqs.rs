@@ -218,6 +218,17 @@ fn a_large_batch_keeps_every_failure() {
 }
 
 #[test]
+fn is_empty_agrees_with_len() {
+    // Both accessors exist (clippy's `len_without_is_empty` requires the pair),
+    // so both are pinned to the same answer.
+    let event = SqsBatchEvent::default();
+    assert!(event.is_empty(), "a default batch holds no messages");
+
+    let failures = BatchItemFailures::new();
+    assert!(failures.is_empty(), "a fresh report holds no ids");
+}
+
+#[test]
 fn sqs_message_new_builds_a_minimal_record() {
     let message = SqsMessage::new("id", "body");
     assert_eq!(message.message_id, "id");

@@ -218,6 +218,12 @@ fn a_whole_event_round_trips_through_serde() {
 }
 
 #[test]
+fn is_empty_agrees_with_len() {
+    let event = DdbStreamEvent::default();
+    assert!(event.is_empty(), "a default event holds no records");
+}
+
+#[test]
 fn iterators_expose_records_and_ids_in_order() {
     let raw = json!({"Records": [
         {"eventID": "a", "eventName": "INSERT"},

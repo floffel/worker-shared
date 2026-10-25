@@ -380,6 +380,18 @@ async fn fetcher_can_be_a_dyn_object() {
 }
 
 #[tokio::test]
+async fn is_empty_agrees_with_len_for_secrets_and_the_cache() {
+    let secret = SecretString::new("x").expect("secret");
+    assert!(!secret.is_empty(), "a one-byte secret is not empty");
+
+    let fetcher = CountingFetcher::new();
+    let cache = SecretCache::new(Arc::clone(&fetcher), config(60, 10)).expect("cache");
+    assert!(cache.is_empty(), "a new cache holds nothing");
+    cache.get("k").await.expect("value");
+    assert!(!cache.is_empty(), "one entry was cached");
+}
+
+#[tokio::test]
 async fn cache_is_send_and_sync() {
     fn assert_send_sync<T: Send + Sync>() {}
     assert_send_sync::<SecretCache<CountingFetcher>>();

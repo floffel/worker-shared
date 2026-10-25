@@ -458,6 +458,16 @@ impl Default for CacheConfig {
     }
 }
 
+#[cfg(feature = "tracing")]
+fn log_fetch_failure(id: &str, error: &Error) {
+    // The id, never the value: a cache log line must be safe to ship to a
+    // third-party log pipeline.
+    tracing::warn!(secret_id = %id, error = %error, "secret fetch failed");
+}
+
+#[cfg(not(feature = "tracing"))]
+fn log_fetch_failure(_id: &str, _error: &Error) {}
+
 /// Counters, for dashboards and for proving cache behaviour in tests.
 ///
 /// ```
@@ -744,6 +754,7 @@ impl<F: SecretFetcher> SecretCache<F> {
             }
             Err(err) => {
                 self.failures.fetch_add(1, Ordering::Relaxed);
+                log_fetch_failure(id, &err);
                 drop(guard);
                 return Err(err);
             }

@@ -82,7 +82,7 @@ example that is not compiled is a claim, not documentation.
 | `sqs` | yes | batch parsing, partial-batch responses | none |
 | `ddb` | no | Streams envelope parsing | none |
 | `secrets-aws` | no | `SecretsManagerFetcher` | `aws-sdk-secretsmanager` |
-| `tracing` | no | reserved for log lines; currently silent | `tracing` |
+| `tracing` | no | warn-level lines on secret-fetch failure and partial dispatch (ids and codes only, never values) | `tracing` |
 
 The cache, config and handler glue are always compiled — they are the crate's
 reason to exist and pull in nothing heavier than `tokio`'s `sync` + `time`

@@ -43,7 +43,7 @@
 //! | `sqs` | yes | [`sqs::SqsBatchEvent`], [`sqs::BatchItemFailures`] |
 //! | `ddb` | no | [`ddb_streams`] envelope parsing |
 //! | `secrets-aws` | no | [`secrets_aws::SecretsManagerFetcher`] (AWS SDK dependency) |
-//! | `tracing` | no | log lines from the cache and dispatcher |
+//! | `tracing` | no | warn-level lines on fetch failure and partial dispatch (never values) |
 //!
 //! The secret cache, config and handler glue are always compiled: they are the
 //! crate's reason to exist and add no heavy dependency.

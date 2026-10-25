@@ -1384,8 +1384,24 @@ pub async fn dispatch<D: Dispatcher + ?Sized>(
             }),
         }
     }
+    if !report.is_complete() {
+        log_partial_failure(&report);
+    }
     Ok(report)
 }
+
+#[cfg(feature = "tracing")]
+fn log_partial_failure(report: &DeliveryReport) {
+    tracing::warn!(
+        failed = report.failures.len(),
+        retryable = report.retryable_indexes().count(),
+        accepted = report.accepted,
+        "PutEvents accepted the call but rejected entries"
+    );
+}
+
+#[cfg(not(feature = "tracing"))]
+fn log_partial_failure(_report: &DeliveryReport) {}
 
 /// Whether an EventBridge error code is transient.
 ///
